@@ -1,24 +1,20 @@
 /* ============================================================
    SECTIONS: Контентные слои, карточки, диалоговый блок
-   Скролл — через body (html), секции — обычный поток
 ============================================================ */
 
-html {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-}
-
-body {
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-/* Контейнер больше НЕ скроллит — он просто обёртка */
 .content-scroll-container {
   position: relative;
   width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
   z-index: 5;
-  pointer-events: none;   /* пропускаем события вниз, к канвасу */
+  scrollbar-width: none;
+}
+
+.content-scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .panel-section {
@@ -30,10 +26,10 @@ body {
   display: flex;
   align-items: center;
   padding: 0 80px 0 calc(var(--char-w) * 8);
-  pointer-events: none;   /* секция тоже прозрачна, кроме детей */
+  pointer-events: none; /* Пропускаем клики на канвас сквозь пустые места */
 }
 
-/* Разрешаем клики ТОЛЬКО там, где есть интерактив */
+/* Разрешаем клики внутри интерактивных блоков */
 .hero-left-anchor,
 .section-card,
 .dialogue-wrapper,
@@ -47,26 +43,23 @@ body {
 }
 
 .hero-left-anchor {
-  max-width: 620px;
-  mix-blend-mode: difference;   /* ← чтобы не теряться на фигуре */
+  max-width: 520px;
 }
 
 .brand-title {
   font-family: var(--font-display);
-  font-weight: 800;                       /* ← жирнее */
-  font-size: clamp(34px, 5vw, 64px);      /* ← крупнее, адаптивно */
-  letter-spacing: -0.02em;
-  color: #ffffff;                         /* ← чистый белый, difference сам сделает контраст */
-  margin-bottom: 12px;
-  line-height: 1.05;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  color: var(--text-bright);
+  margin-bottom: 8px;
 }
 
 .brand-quote {
   font-family: var(--font-mono);
-  font-size: clamp(14px, 1.4vw, 18px);    /* ← крупнее */
-  line-height: calc(var(--char-h) * 1.5);
-  color: #ffffff;
-  opacity: 0.85;
+  font-size: 13px;
+  line-height: calc(var(--char-h) * 1.4);
+  color: var(--text-dim);
 }
 
 .hero-bottom-hint {
@@ -78,7 +71,7 @@ body {
   user-select: none;
 }
 
-/* --- КАРТОЧКИ --- */
+/* --- КАРТОЧКИ (Кто мы, Что делаем, Контакты) --- */
 .section-card {
   width: 100%;
   max-width: 640px;
@@ -131,7 +124,7 @@ body {
   font-size: 12px;
 }
 
-/* --- ДИАЛОГ (поп-ап) --- */
+/* --- ДИАЛОГОВЫЙ БЛОК --- */
 .dialogue-section {
   justify-content: center;
   padding-right: calc(var(--char-w) * 8);
@@ -143,29 +136,6 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 1;
-}
-
-/* Затемнение фона, когда диалог развёрнут */
-.dialogue-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.72);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.28s ease;
-  z-index: 50;
-}
-
-body.dialogue-open .dialogue-backdrop {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Поле и окно приподнимаем над затемнением */
-body.dialogue-open .dialogue-wrapper {
-  position: relative;
-  z-index: 60;
 }
 
 .input-container {
@@ -228,16 +198,6 @@ body.dialogue-open .dialogue-wrapper {
   border-bottom: none;
   display: flex;
   flex-direction: column;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  pointer-events: none;
-}
-
-body.dialogue-open .dialogue-window {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
 }
 
 .dialogue-header {
@@ -355,69 +315,15 @@ body.dialogue-open .dialogue-window {
 /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
 @media (max-width: 768px) {
   .panel-section {
-    padding: 80px 20px 40px;
-    align-items: flex-start;
+    padding: 0 20px;
   }
-
-  .hero-section {
-    padding-top: 100px;
-    align-items: center;
-  }
-
-  .hero-left-anchor {
-    max-width: 100%;
-  }
-
-  .brand-title {
-    font-size: clamp(28px, 9vw, 44px);
-  }
-
-  .brand-quote {
-    font-size: 14px;
-  }
-
-  /* HUD — уходит вниз, чтобы не налезал на hero */
-  .instrument-hud {
-    top: auto;
-    bottom: 14px;
-    left: 12px;
-    right: 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-    font-size: 10px;
-  }
-
-  .hud-item {
-    flex: 0 0 auto;
-  }
-
-  .figure-indicator {
-    padding: 3px 8px;
-    gap: 6px;
-  }
-
-  .figure-indicator-name {
-    display: none;   /* на мобиле имя прячем — оно длинное */
-  }
-
   .side-nav {
     display: none;
   }
-
   .contact-links-grid {
     grid-template-columns: 1fr;
   }
-
   .dialogue-window {
     height: 280px;
-  }
-
-  .section-card {
-    max-width: 100%;
-    padding: 20px 16px;
-  }
-
-  .section-headline {
-    font-size: 18px;
   }
 }
